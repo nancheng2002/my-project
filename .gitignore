@@ -1,0 +1,14 @@
+# Java
+/backend/target/
+*.log
+.idea/
+*.iml
+
+# Node
+/admin/node_modules/
+/web/node_modules/
+/admin/dist/
+/web/dist/
+
+# OS
+Thumbs.db
