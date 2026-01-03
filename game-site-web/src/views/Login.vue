@@ -10,10 +10,10 @@
           <el-input v-model="form.password" type="password" autocomplete="current-password" />
         </el-form-item>
         <el-button
-          class="login-button"
-          type="primary"
-          :loading="loading"
-          @click="handleLogin"
+            class="login-button"
+            type="primary"
+            :loading="loading"
+            @click="handleLogin"
         >
           登录
         </el-button>
@@ -21,7 +21,6 @@
     </el-card>
   </div>
 </template>
-
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
