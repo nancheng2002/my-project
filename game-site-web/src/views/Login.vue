@@ -2,55 +2,58 @@
   <div class="login-page">
     <el-card class="login-card">
       <h2 class="login-title">登录</h2>
-      <el-form :model="form" status-icon>
+      <el-form :model="form" status-icon @keyup.enter="handleLogin">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username"></el-input>
+          <el-input v-model="form.username" autocomplete="username" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input type="password" v-model="form.password"></el-input>
+          <el-input v-model="form.password" type="password" autocomplete="current-password" />
         </el-form-item>
-        <el-button type="primary" @click="login" :loading="loading" class="login-button">登录</el-button>
+        <el-button
+            class="login-button"
+            type="primary"
+            :loading="loading"
+            @click="handleLogin"
+        >
+          登录
+        </el-button>
       </el-form>
     </el-card>
   </div>
 </template>
-
-<script>
+<script setup>
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
 
-export default {
-  data() {
-    return {
-      loading: false,
-      form: {
-        username: '',
-        password: ''
-      }
-    };
-  },
-  methods: {
-    async login() {
-      if (!this.form.username || !this.form.password) {
-        ElMessage.error('请输入用户名和密码');
-        return;
-      }
-      this.loading = true;
-      try {
-        const user = await authApi.login({
-          username: this.form.username,
-          password: this.form.password
-        });
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userInfo', JSON.stringify(user));
-        ElMessage.success('登录成功');
-        this.$router.push('/');
-      } catch (error) {
-        ElMessage.error(error.message || '登录失败');
-      } finally {
-        this.loading = false;
-      }
-    }
+const router = useRouter()
+const loading = ref(false)
+const form = reactive({
+  username: '',
+  password: '',
+})
+
+const handleLogin = async () => {
+  if (!form.username || !form.password) {
+    ElMessage.error('请输入用户名和密码')
+    return
+  }
+
+  loading.value = true
+  try {
+    const user = await authApi.login({
+      username: form.username,
+      password: form.password,
+    })
+    localStorage.setItem('isLoggedIn', 'true')
+    localStorage.setItem('userInfo', JSON.stringify(user))
+    ElMessage.success('登录成功')
+    router.push('/')
+  } catch (error) {
+    ElMessage.error(error.message || '登录失败')
+  } finally {
+    loading.value = false
   }
 }
 </script>
