@@ -1,29 +1,46 @@
 package com.zhaox.backend.controller;
 
+import com.zhaox.backend.common.Result;
+import com.zhaox.backend.dto.LoginRequest;
 import com.zhaox.backend.entity.User;
 import com.zhaox.backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    // 登录接口，传递用户名和密码
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
+    /**
+     * 登录接口，传递用户名和密码
+     */
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password) {
-        // 调用 UserService 的认证方法，验证用户名和密码
-        User user = userService.authenticateUser(username, password);
-
-        // 如果用户存在，返回登录成功的消息
-        if (user != null) {
-            return "登录成功";
+    public Result<Map<String, Object>> login(@RequestBody LoginRequest request) {
+        if (request == null || request.getUsername() == null || request.getPassword() == null) {
+            return Result.fail("用户名和密码不能为空");
         }
 
-        // 如果用户名或密码错误，返回错误信息
-        return "用户名或密码错误";
+        User user = userService.authenticateUser(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return Result.fail("用户名或密码错误");
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", user.getId());
+        data.put("username", user.getUsername());
+        data.put("role", user.getRole());
+
+        return Result.ok(data);
     }
 }
